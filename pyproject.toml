@@ -1,13 +1,15 @@
 [project]
-name = "textual-pyfiglet"
-version = "0.6.0"
-description = "A Widget implementation of PyFiglet for Textual"
+name = "rich-pyfiglet"
+version = "0.1.0"
+description = "A library that wraps PyFiglet with the Rich library for rendering ASCII art in the terminal."
 readme = "README.md"
 authors = [
     { name = "edward-jazzhands", email = "ed.jazzhands@gmail.com" }
 ]
 license = { text = "MIT" }
-keywords = ["python", "textual", "tui", "pyfiglet", "figlet", "ascii", "widget"]
+keywords = [
+    "python", "pyfiglet", "figlet", "ascii", "rich", "cli", "color", "terminal", "banner"
+]
 
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -25,29 +27,19 @@ classifiers = [
 
 requires-python = ">=3.8.1"
 dependencies = [
-    "textual>=3.0.0",
-    "textual-slidecontainer==0.4.0",
-]
-
-[dependency-groups]
-dev = [
-    "black>=24.8.0",
-    "mypy>=1.14.1",
-    "ruff>=0.11.8",
-    "textual-dev>=1.7.0",
-    # add pytest
+    "rich>=14.0.0",
 ]
 
 [project.urls]
-Repository = "https://github.com/edward-jazzhands/textual-pyfiglet"
-Changelog = "https://github.com/edward-jazzhands/textual-pyfiglet/blob/master/Changelog.md"
+Repository = "https://github.com/edward-jazzhands/rich-pyfiglet"
+Changelog = "https://github.com/edward-jazzhands/rich-pyfiglet/blob/master/Changelog.md"
 
-[project.scripts]
-textual-pyfiglet = "textual_pyfiglet.cli:main"
+# [project.scripts]
+# rich-pyfiglet = "rich-pyfiglet.cli:main"
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+# [build-system]
+# requires = ["hatchling"]
+# build-backend = "hatchling.build"
 
 [tool.black]
 line-length = 110
@@ -56,3 +48,10 @@ line-length = 110
 python_version = "3.10"
 pretty = true
 strict = true
+
+[dependency-groups]
+dev = [
+    "black>=24.8.0",
+    "mypy>=1.14.1",
+    "ruff>=0.11.9",
+]
