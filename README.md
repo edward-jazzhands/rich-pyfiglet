@@ -1,3 +1,4 @@
+![rich-pyfiglet-banner](https://github.com/user-attachments/assets/b16667f2-4428-4bf5-aad5-5832b5b5da3d)
 # rich-pyfiglet
 
 This is a library that wraps PyFiglet with the Rich library for Python.
