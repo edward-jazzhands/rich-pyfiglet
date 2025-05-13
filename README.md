@@ -38,7 +38,7 @@ check what fonts are available.
 Import into your project with:
 
 ```py
-from rich-pyfiglet import RichFiglet
+from rich_pyfiglet import RichFiglet
 ```
 
 ## CLI mode
@@ -61,6 +61,7 @@ pipx rich-pyfiglet "Rich is awesome" --colors blue1:magenta3 -h
 
 ```py
 from rich.console import Console
+from rich_pyfiglet import RichFiglet
 console = Console()
 
 rich_fig = RichFiglet(
