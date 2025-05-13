@@ -1,9 +1,26 @@
 ![rich-pyfiglet-banner](https://github.com/user-attachments/assets/b16667f2-4428-4bf5-aad5-5832b5b5da3d)
-# rich-pyfiglet
 
-This is a library that wraps PyFiglet with the Rich library for Python.
+# Rich-Pyfiglet
+
+## Installation
+
+```sh
+pip install rich-pyfiglet
+```
+
+or using uv:
+
+```sh
+uv add rich-pyfiglet
+```
+
+------------------------------------------
+
+Rich-PyFiglet is an implementation of [PyFiglet](https://github.com/pwaller/pyfiglet) for [Rich](https://github.com/Textualize/rich).
 
 It provides a RichFiglet class that is fully compatible with the Rich API and can be dropped into your Rich scripts.
+
+*This library is the sister library of [Textual-Pyfiglet](https://github.com/edward-jazzhands/textual-pyfiglet).*
 
 ## Features
 
@@ -17,20 +34,6 @@ It provides a RichFiglet class that is fully compatible with the Rich API and ca
 - Included CLI mode for quick testing.
 - The fonts are type-hinted to give you auto-completion in your code editor, eliminating the need to manually
 check what fonts are available.
-
-## Installation
-
-Install with:
-
-```sh
-pip install rich-pyfiglet
-```
-
-or for uv users:
-
-```sh
-uv add rich-pyfiglet
-```
 
 Import into your project with:
 
