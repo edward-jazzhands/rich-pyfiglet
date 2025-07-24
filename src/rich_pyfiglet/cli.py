@@ -102,15 +102,15 @@ def cli(
 
         try:
             rich_figlet = RichFiglet(
-                    text,
-                    font=cast(ALL_FONTS, font),
-                    colors=colors_list,
-                    horizontal=horizontal,
-                    animation=cast(ANIMATION_TYPE, animation),
-                    quality=quality,
-                    fps=fps,
-                    dev_mode=dev,
-                )
+                text,
+                font=cast(ALL_FONTS, font),
+                colors=colors_list,
+                horizontal=horizontal,
+                animation=cast(ANIMATION_TYPE, animation),
+                quality=quality,
+                fps=fps,
+                dev_mode=dev,
+            )
         except ColorParseError as e:
             click.echo(f"Error: {e}")
             context.exit(1)
