@@ -1,4 +1,4 @@
-<img width="1238" height="495" alt="rich-pyfiglet-banner" src="https://github.com/user-attachments/assets/efa9dcd4-2521-4c15-90a2-b6b8486937ad" />
+<img width="1238" height="495" alt="rich-pyfiglet-banner" src="https://github.com/user-attachments/assets/88729fc9-1be5-42f4-85f6-7ea96943a459" />
 
 # Rich-Pyfiglet
 
