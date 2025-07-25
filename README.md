@@ -1,4 +1,6 @@
-<img src="https://edward-jazzhands.github.io/assets/rich-pyfiglet/banner.png" style="max-width:100%;height:auto;"/>
+<picture>
+  <img src="https://edward-jazzhands.github.io/assets/rich-pyfiglet/banner.png" style="max-width:100%;height:auto;"/>
+</picture>
 
 # Rich-Pyfiglet
 
