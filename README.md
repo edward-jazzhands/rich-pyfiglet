@@ -1,12 +1,13 @@
-<img width="1238" height="495" alt="rich-pyfiglet-banner" src="https://github.com/user-attachments/assets/88729fc9-1be5-42f4-85f6-7ea96943a459" />
+<img src="https://edward-jazzhands.github.io/assets/rich-pyfiglet/banner.png" style="max-width:100%;height:auto;"/>
 
 # Rich-Pyfiglet
 
-![badge](https://img.shields.io/badge/linted-Ruff-blue?style=for-the-badge&logo=ruff)
-![badge](https://img.shields.io/badge/formatted-black-black?style=for-the-badge)
-![badge](https://img.shields.io/badge/type_checked-MyPy_(strict)-blue?style=for-the-badge&logo=python)
-![badge](https://img.shields.io/badge/Type_checked-Pyright_(strict)-blue?style=for-the-badge&logo=python)
-![badge](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)
+[![badge](https://img.shields.io/badge/linted-Ruff-blue?style=for-the-badge&logo=ruff)](https://astral.sh/ruff)
+[![badge](https://img.shields.io/badge/formatted-black-black?style=for-the-badge)](https://github.com/psf/black)
+[![badge](https://img.shields.io/badge/type_checked-MyPy_(strict)-blue?style=for-the-badge&logo=python)](https://mypy-lang.org/)
+[![badge](https://img.shields.io/badge/Type_checked-Pyright_(strict)-blue?style=for-the-badge&logo=python)](https://microsoft.github.io/pyright/)
+[![badge](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](https://opensource.org/license/mit)
+[![badge](https://img.shields.io/badge/framework-Textual-blue?style=for-the-badge)](https://textual.textualize.io/)
 
 Rich-PyFiglet is an implementation of [PyFiglet](https://github.com/pwaller/pyfiglet) for [Rich](https://github.com/Textualize/rich).
 
@@ -29,16 +30,14 @@ It provides a RichFiglet class that is fully compatible with the Rich API and ca
 
 ## Try out the CLI
 
-If you have uv or Pipx, you can immediately try out the included CLI:
+If you have [uv](https://docs.astral.sh/uv/) or [pipx](https://pipx.pypa.io/stable/), you can immediately try the included CLI:
 
 ```sh
-uvx rich-pyfiglet "Rich is awesome" --colors green3:purple -a gradient_down
+uvx rich-pyfiglet "Rich is awesome" --colors blue:green
 ```
 
-or using pipx:
-
 ```sh
-pipx run rich-pyfiglet "Rich is awesome" --colors blue1:magenta3 -h
+pipx rich-pyfiglet "Rich is awesome" --colors blue:green
 ```
 
 ## Documentation
