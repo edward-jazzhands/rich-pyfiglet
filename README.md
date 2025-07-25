@@ -7,7 +7,6 @@
 [![badge](https://img.shields.io/badge/type_checked-MyPy_(strict)-blue?style=for-the-badge&logo=python)](https://mypy-lang.org/)
 [![badge](https://img.shields.io/badge/Type_checked-Pyright_(strict)-blue?style=for-the-badge&logo=python)](https://microsoft.github.io/pyright/)
 [![badge](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](https://opensource.org/license/mit)
-[![badge](https://img.shields.io/badge/framework-Textual-blue?style=for-the-badge)](https://textual.textualize.io/)
 
 Rich-PyFiglet is an implementation of [PyFiglet](https://github.com/pwaller/pyfiglet) for [Rich](https://github.com/Textualize/rich).
 
