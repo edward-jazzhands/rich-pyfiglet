@@ -6,7 +6,7 @@
 
 if you are using it inside of a Rich application, you will also need:
 
-- [Rich](https://textual.textualize.io/) >= 12.6.0
+- [Rich](https://github.com/Textualize/rich) >= 12.6.0
 
 ## Installation
 
