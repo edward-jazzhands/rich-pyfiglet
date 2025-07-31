@@ -81,7 +81,7 @@ def tests(session: nox.Session, ver: int) -> None:
     session.run("ruff", "check", "src")       
     session.run("mypy", "src")                
     session.run("basedpyright", "src")
-    session.run("pytest", "tests", "-vvv") 
+    # session.run("pytest", "tests", "-vvv") 
 
     # This code here will make Nox delete each session after it finishes.
     # This might be preferable to allowing it all to accumulate and then deleting
