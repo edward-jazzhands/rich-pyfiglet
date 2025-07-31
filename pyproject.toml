@@ -52,6 +52,7 @@ dev = [
     "mypy>=1.14.1",
     "pytest>=8.3.5",
     "ruff>=0.11.9",
+    "tomli>=2.2.1",
 ]
 
 [tool.black]
