@@ -14,7 +14,7 @@ Rich-PyFiglet is an implementation of [PyFiglet](https://github.com/pwaller/pyfi
 
 It provides a RichFiglet class that is fully compatible with the Rich API and can be dropped into your Rich scripts.
 
-*This library is related to [Textual-Pyfiglet](https://github.com/edward-jazzhands/rich-pyfiglet).*
+*This library is related to [Textual-Pyfiglet](https://github.com/edward-jazzhands/textual-pyfiglet).*
 
 ## Features
 

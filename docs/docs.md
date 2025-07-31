@@ -1,5 +1,13 @@
 # Rich-PyFiglet<br>Documentation and Guide
 
+## Requirements
+
+- Python >= 3.9
+
+if you are using it inside of a Rich application, you will also need:
+
+- [Rich](https://textual.textualize.io/) >= 12.6.0
+
 ## Installation
 
 ```sh
