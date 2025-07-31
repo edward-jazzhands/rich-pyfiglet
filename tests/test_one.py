@@ -1,6 +1,10 @@
 import subprocess
+from pathlib import Path
 from rich.console import Console
 from rich_pyfiglet import RichFiglet
+
+SNAPSHOTS_DIR = Path("tests/snapshots")
+SNAPSHOTS_DIR.mkdir(exist_ok=True)
 
 def diff_snapshots(test_name: str):
     diff = subprocess.run(
