@@ -152,7 +152,3 @@ rich_fig = RichFiglet(
 console.print(rich_fig)
 console.print("The rest of your Rich script")
 ```
-
-## API Reference
-
-You can find the full API reference on the [reference page](reference.md).
