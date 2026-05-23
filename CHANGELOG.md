@@ -1,5 +1,53 @@
 # Changelog for Rich-Pyfiglet
 
+## [2.0.0] 2026-05-23
+
+### Added
+
+**Library additions:**
+
+- Added the `justify` argument to the RichFiglet constructor. This allows you to set the justification of the figlet. Dunno why I didn't add this before honestly.
+- Added the `width` argument to the RichFiglet constructor. If not set, the terminal width will be used.
+- Added the `timer` argument to the RichFiglet constructor. This allows you to set a timer for the animation to run for, instead of running indefinitely.
+- [dev] Added a `dev_console` argument to the RichFiglet constructor which allows you to pass in a console to print debug information to, making it possible to use the same console the RichFiglet is printed to, or make it print to stdout.
+- [dev] Added more information to the debug output in dev mode.
+
+The documentation has been updated to reflect these changes.
+
+**CLI additions:**
+
+- Added the `demo` command to run a new demo. The new demo now ships with the package and is much more polished than the old example file.
+- Added the `--justify` option.
+- Added the `--width` option.
+- Added the `--border` flag.
+- Added the `--border-color` flag to set the border color.
+- Added the `borders` command to list available borders.
+- Added the `--random` flag to try out random fonts.
+- Added some usage examples to the CLI help menu.
+- [dev] Enabled rich tracebacks in the CLI for development.
+
+### Changed
+
+**Library changes:**
+
+- [BREAKING] Removed support for Python 3.9
+- Bumped max Rich version up to 15 (#13 by @abulgher).
+- [dev] Changed the maximum line length to 90 characters (I repent from my previous usage of 110 characters)
+- [dev] Created one `_send_animation_to_worker` function for all the animation functions to share, reduced some code duplication.
+- [dev] Small optimization to the logic to remove blank lines.
+- [dev] Updated UV build version to >=0.9.24,<0.10.0
+
+**CLI changes:**
+
+- Swapped out regular Click for Rich-Click. Now the help menu prints with colors and rich formatting. This project already had both Rich and Click, so this was a natural choice.
+- Updated the CLI UX so `figlet` is now a command, and set to the default command. Usage should remain identical, except that using `rich-pyfiglet` with no arguments or options will no longer print the help menu, and instead shows a "Missing argument" error.
+- Changed the `--list` flag to be a command called `fonts`, and removed the leading hyphen "- " on each font name when printing the list.
+- Changed the `--dev` flag to print the debug output to stderr instead of stdout, also now uses a Rich console for coloring the output.
+
+**Testing changes:**
+
+- Updated all the historical snapshots. The old ones had some consistency issues, so I updated them to match the new ones. I also added two new snapshot types. It now also snapshots .txt files alongside the .svg files, and diffs both of them. This should provide more comprehensive coverage than the svg snapshots alone.
+
 ## [1.0.0] 2025-07-30
 
 ### Changed

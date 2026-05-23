@@ -22,8 +22,8 @@ import nox
 import pathlib
 import shutil
 
-# PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12"]
-PYTHON_VERSIONS = ["3.9"]
+# PYTHON_VERSIONS = ["3.10", "3.11", "3.12"]
+PYTHON_VERSIONS = ["3.10"]
 MAJOR_RICH_VERSIONS = [12, 13, 14, 15]
 
 ##############

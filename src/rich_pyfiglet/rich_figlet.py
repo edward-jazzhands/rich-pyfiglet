@@ -2,7 +2,7 @@
 
 # ~ Type Checking (Pyright and MyPy) - Strict Mode
 # ~ Linting - Ruff
-# ~ Formatting - Black - max 110 characters / line
+# ~ Formatting - Black - max 90 characters / line
 
 from __future__ import annotations
 from typing import get_args, Literal, Callable
@@ -27,6 +27,8 @@ from rich_pyfiglet.box_constants import BOX_STYLES, BOXES
 
 ANIMATION_TYPE = Literal["gradient_up", "gradient_down", "smooth_strobe", "fast_strobe"]
 
+JUSTIFICATION = Literal["left", "center", "right"]
+
 
 class RichFiglet:
 
@@ -35,16 +37,19 @@ class RichFiglet:
         text: str,
         font: ALL_FONTS = "standard",
         width: int | None = None,
+        justify: JUSTIFICATION = "left",
         colors: list[str] | None = None,
         horizontal: bool = False,
         quality: int | None = None,
         animation: ANIMATION_TYPE | None = None,
         fps: float | None = None,
+        timer: float | None = None,
         remove_blank_lines: bool = False,
         border: BOX_STYLES | None = None,
         border_padding: tuple[int, int] = (1, 2),
         border_color: str | None = None,
         dev_mode: bool = False,
+        dev_console: Console | None = None,
     ):
         """Create a RichFiglet object.
 
@@ -52,6 +57,7 @@ class RichFiglet:
             text: The text to render.
             font: The font to use. Defaults to 'standard'.
             width: The width of the rendered text. If None, will use the terminal width.
+            justify: Justify the text. Can be 'left', 'center', or 'right'.
             colors: A list of colors to use for gradients or animations. Each color can be a name, hex code,
                 or RGB triplet. If None, no gradient or animation will be applied. For available named colors,
                 see: https://rich.readthedocs.io/en/stable/appendix/colors.html
@@ -66,8 +72,10 @@ class RichFiglet:
                 - 'smooth_strobe': The entire banner will smoothly transition between colors
                 - 'fast_strobe': The entire banner will hard switch to the next color.
                 Recommended to lower the FPS to avoid giving people seizures.
-            fps: Frames per second for the animation. This is a float so that you can set it to values
-                such as 0.5 if you desire.
+            fps: Frames per second for the animation. The default is 5, unless you are using the 'fast_strobe'
+                animation, in which case the default is 1.5
+            timer: The time in seconds to run the animation. If None, the animation will run indefinitely
+                (until the user presses ctrl+c).
             remove_blank_lines: When True, all blank lines from the inside of the rendered ASCII art
                 will be removed. Some fonts have gaps between the lines- this will remove them and
                 compress the banner down to the minimum size.
@@ -77,7 +85,10 @@ class RichFiglet:
                 the border argument in the constructor, rather than adding a border afterwards.
             border_padding: The padding to use for the border. Defaults to (1, 2) which is (top/bottom, left/right).
             border_color: The color of the border. Can be a name, hex code, or RGB triplet.
-            dev_mode: When True, will print debug information to the console.
+            dev_mode: When True, will print debug information to the terminal.
+            dev_console: The console to use for the dev_mode debug printout. If None, the console
+                will be created automatically and print to stderr. You can use this to Pass in
+                the same console the RichFiglet will be printed to.
         """
 
         #######################
@@ -93,10 +104,17 @@ class RichFiglet:
         if animation and fps and fps <= 0:
             raise ValueError("Frames per second must be greater than 0.")
         if quality and (colors is None or len(colors) < 2):
-            raise ValueError("At least two colors are required to set a gradient quality.")
+            raise ValueError(
+                "At least two colors are required to set a gradient quality."
+            )
         if quality and quality < 2:
             raise ValueError("Gradient Quality must be 2 or higher.")
-        if animation and animation not in ["gradient_up", "gradient_down", "smooth_strobe", "fast_strobe"]:
+        if animation and animation not in [
+            "gradient_up",
+            "gradient_down",
+            "smooth_strobe",
+            "fast_strobe",
+        ]:
             raise ValueError(
                 "Animation type must be 'gradient_up', 'gradient_down', 'smooth_strobe', or 'fast_strobe'."
             )
@@ -110,7 +128,11 @@ class RichFiglet:
         else:
             terminal_width = self.get_terminal_width()
             if terminal_width:
-                width = (terminal_width - (border_padding[1] * 2) - 2) if border else terminal_width
+                width = (
+                    (terminal_width - (border_padding[1] * 2) - 2)
+                    if border
+                    else terminal_width
+                )
                 # terminal_width-(border_padding[1]*2)-2    This subtracts the left/right padding
                 # and border from our available space in which we can render the text.
 
@@ -121,6 +143,7 @@ class RichFiglet:
 
         self.text = text
         self.font = font
+        self.justify = justify
         self.colors = colors
         self.horizontal = horizontal
         self.animation = animation
@@ -130,7 +153,9 @@ class RichFiglet:
         self.border_color = border_color
         self.remove_blank_lines = remove_blank_lines
         self.animation_running = False
+        self.timer = timer
         self.dev_mode = dev_mode
+        self.dev_console = dev_console if dev_console else Console(stderr=True)
         user_set_quality = False
         if quality:
             user_set_quality = True
@@ -162,64 +187,81 @@ class RichFiglet:
                 parsed_colors.append(color_obj)
             if self.dev_mode:
                 for parsed_color in parsed_colors:
-                    print(f"Color: {parsed_color}")
+                    self.dev_console.print(f"Color: {parsed_color}")
 
         self.border_style_obj: str | Style = "none"
         if border_color:
             self.border_style_obj = Style(color=self.parse_color(border_color))
             if self.dev_mode:
-                print(f"Border color: {self.border_style_obj}")
+                self.dev_console.print(f"Border color: {self.border_style_obj}")
 
         #####################
         # ~ Render Figlet ~ #
         #####################
 
-        self.figlet = Figlet(font=font, width=width)
+        self.figlet = Figlet(font=font, width=width, justify=self.justify)
         self.render_str = self.figlet.renderText(text)
         rendered_strings_list = self.render_str.splitlines()
 
-        # Remove leading and trailing blank lines LOOPER
-        while True:
-            lines_cleaned: list[str] = []
+        if self.justify != "left":
+            # For center or right justification, we want the rendered figlet to be
+            # the same width as the terminal. The Figlet class actually strips all the
+            # trailing whitespace in the render_str we get back.
+            # This is an issue because we need all that trailing whitespace in order
+            # for Rich to properly draw a border around the figlet. This adds it back.
             for i, line in enumerate(rendered_strings_list):
-                if remove_blank_lines:
-                    if all(c == " " for c in line):  # if line is blank, skip it
-                        pass
-                    else:
-                        lines_cleaned.append(line)  # Only append the lines we want to keep.
-                else:
-                    # If remove_blank_lines is False, we want to keep the inner blank lines,
-                    # but remove any leading and trailing blank lines.
-                    # if first line, and blank:
-                    if i == 0 and all(c == " " for c in line):
-                        pass
-                    # elif last line, and blank:
-                    elif i == len(rendered_strings_list) - 1 and all(c == " " for c in line):
-                        pass
-                    else:
-                        lines_cleaned.append(line)
+                if len(line) < width:
+                    rendered_strings_list[i] += " " * (width - len(line))
 
-            if lines_cleaned == rendered_strings_list:  # if there's no changes,
-                break  #                           then we can continue.
-            else:
-                rendered_strings_list = lines_cleaned
-                # If lines_cleaned is different, that means there was
-                # a change. So set render_lines to lines_cleaned and restart loop.
+        # if self.dev_mode:
+        #     self.dev_console.print(f"Height before cleaning: {len(rendered_strings_list)}")
+
+        def not_blank(line: str) -> bool:
+            return (True if line.strip() else False)
+
+        if remove_blank_lines:
+            lines_cleaned = [line for line in rendered_strings_list if not_blank(line)]
+        else:
+            # Find the first non-blank line index
+            start = 0
+            for i, line in enumerate(rendered_strings_list):
+                if not_blank(line):
+                    start = i
+                    break
+
+            # Find the last non-blank line index
+            end = len(rendered_strings_list)
+            for i, line in enumerate(reversed(rendered_strings_list)):
+                if not_blank(line):
+                    end = len(rendered_strings_list) - i
+                    break
+
+            # if self.dev_mode:
+            #     self.dev_console.print(f"First non-blank line: {start}")
+            #     self.dev_console.print(f"Last non-blank line: {end}")
+
+            lines_cleaned = rendered_strings_list[start:end]
 
         # This is our finished final render (without color).
         # Convert it into a Lines object for Rich rendering:
         self.rendered_lines = Lines()
-        for line in rendered_strings_list:
+        for line in lines_cleaned:
             self.rendered_lines.append(Text(line))
 
         # This is needed for __rich_measure__
-        width_foo = len(max(rendered_strings_list, key=len))
+        longest_line = len(max(lines_cleaned, key=len))
         added_by_border = 2 if border else 0
-        self.reported_width = width_foo + (self.border_padding[1] * 2) + added_by_border
+        self.reported_width = (
+            longest_line + (self.border_padding[1] * 2) + added_by_border
+        )
         if self.dev_mode:
-            print(f"Terminal width: {terminal_width}")
-            print(f"Width: {self.reported_width}")
-            print(f"Height: {len(rendered_strings_list)}")
+            self.dev_console.print(f"Terminal width: {terminal_width}")
+            self.dev_console.print(f"Width: {self.reported_width}")
+            self.dev_console.print(f"Longest line: {longest_line}")
+            self.dev_console.print(f"Height: {len(lines_cleaned)}")
+            self.dev_console.print(f"Font: {font}")
+            self.dev_console.print(f"Input text: {text}")
+            self.dev_console.print(f"Timer: {timer}")
 
         #####################################
         # ~ Color / Gradients / Animation ~ #
@@ -238,18 +280,26 @@ class RichFiglet:
 
             if not animation or animation in ["gradient_up", "gradient_down"]:
 
-                num_of_gradients = len(parsed_colors) - 1  # 2 colors would mean 1 transition.
+                num_of_gradients = (
+                    len(parsed_colors) - 1
+                )  # 2 colors would mean 1 transition.
                 if animation or not self.horizontal:
-                    quality_float = quality if quality else len(rendered_strings_list) / num_of_gradients
+                    quality_float = (
+                        quality
+                        if quality
+                        else len(lines_cleaned) / num_of_gradients
+                    )
                 else:  # horizontal:
                     quality_float = (
-                        quality if quality else len(max(rendered_strings_list, key=len)) / num_of_gradients
+                        quality
+                        if quality
+                        else len(max(lines_cleaned, key=len)) / num_of_gradients
                     )
 
                 if quality_float <= 1:
                     quality = 1
                     if self.dev_mode:
-                        print(
+                        self.dev_console.print(
                             f"ERROR: Quality is too low: {quality_float}. Setting to 1. This means "
                             "you have provided too many colors to fit inside your finished render. "
                             "Reduce the number of colors to see them all."
@@ -257,32 +307,48 @@ class RichFiglet:
                 else:
                     quality = int(quality_float)
                 if self.dev_mode:
-                    print(f"Gradient quality: {quality}")
+                    self.dev_console.print(f"Gradient quality: {quality}")
 
-                for i in range(len(parsed_colors) - 1):  # stop at second to last color because of [i + 1]
-                    self.gradient += self.make_gradient(parsed_colors[i], parsed_colors[i + 1], quality)
+                for i in range(
+                    len(parsed_colors) - 1
+                ):  # stop at second to last color because of [i + 1]
+                    self.gradient += self.make_gradient(
+                        parsed_colors[i], parsed_colors[i + 1], quality
+                    )
 
                 if self.dev_mode:
-                    print(f"Colors in gradient before leftover: {len(self.gradient)}")
+                    self.dev_console.print(
+                        f"Colors in gradient before leftover: {len(self.gradient)}"
+                    )
 
                 if animation or not self.horizontal:
                     leftover = len(self.rendered_lines) - len(self.gradient)
                 else:  # horizontal:
-                    leftover = len(max(rendered_strings_list, key=len)) - len(self.gradient)
+                    leftover = len(max(lines_cleaned, key=len)) - len(
+                        self.gradient
+                    )
 
                 if not user_set_quality:
                     if leftover > 0:
-                        for _ in range(leftover):  # fill in the leftover lines with the last color
+                        for _ in range(
+                            leftover
+                        ):  # fill in the leftover lines with the last color
                             self.gradient.append(self.gradient[-1])
                     if self.dev_mode:
-                        print(f"Colors in gradient after leftover: {len(self.gradient)}")
+                        self.dev_console.print(
+                            f"Colors in gradient after leftover: {len(self.gradient)}"
+                        )
 
                 # This will make the last color blend back into the first color.
                 # This is normally not visible unless animating, or the user has set a
                 # custom quality that is making the colors repeat.
-                self.gradient += self.make_gradient(parsed_colors[-1], parsed_colors[0], quality)
+                self.gradient += self.make_gradient(
+                    parsed_colors[-1], parsed_colors[0], quality
+                )
                 if self.dev_mode:
-                    print(f"Colors in gradient after looping: {len(self.gradient)}")
+                    self.dev_console.print(
+                        f"Colors in gradient after looping: {len(self.gradient)}"
+                    )
 
                 if animation or not self.horizontal:
                     self.rendered_with_colors = self._build_with_gradient("vertical")
@@ -294,16 +360,26 @@ class RichFiglet:
                 if animation == "smooth_strobe":
                     quality = quality if quality else 10
 
-                    for i in range(len(parsed_colors) - 1):  # stop at second to last color because of [i + 1]
-                        self.gradient += self.make_gradient(parsed_colors[i], parsed_colors[i + 1], quality)
+                    for i in range(
+                        len(parsed_colors) - 1
+                    ):  # stop at second to last color because of [i + 1]
+                        self.gradient += self.make_gradient(
+                            parsed_colors[i], parsed_colors[i + 1], quality
+                        )
 
                     if self.dev_mode:
-                        print(f"Colors in gradient: {len(self.gradient)}")
+                        self.dev_console.print(
+                            f"Colors in gradient: {len(self.gradient)}"
+                        )
 
                     # Blend last color back into first color
-                    self.gradient += self.make_gradient(parsed_colors[-1], parsed_colors[0], quality)
+                    self.gradient += self.make_gradient(
+                        parsed_colors[-1], parsed_colors[0], quality
+                    )
                     if self.dev_mode:
-                        print(f"Colors in gradient after looping: {len(self.gradient)}")
+                        self.dev_console.print(
+                            f"Colors in gradient after looping: {len(self.gradient)}"
+                        )
 
                     # Set the first color for our strobe animation
                     for line in self.rendered_lines:
@@ -326,7 +402,8 @@ class RichFiglet:
         """Get the terminal size.
 
         Returns:
-            The width of the terminal in characters, or None if it cannot be determined."""
+            The width of the terminal in characters, or None if it cannot be determined.
+        """
         try:
             size = os.get_terminal_size()
             return size.columns
@@ -413,7 +490,9 @@ class RichFiglet:
                     line.stylize(Style(color=self.gradient[color_index]), j, j + 1)
 
         else:
-            raise ValueError("Invalid gradient direction. Must be 'vertical' or 'horizontal'.")
+            raise ValueError(
+                "Invalid gradient direction. Must be 'vertical' or 'horizontal'."
+            )
 
         return rendered_with_colors
 
@@ -451,11 +530,17 @@ class RichFiglet:
         else:  # animate is True:
 
             if self.animation in ["gradient_up", "gradient_down"]:
-                self._vertical_animation(console, self.rendered_with_colors, self.gradient, self.fps)
+                self._vertical_animation(
+                    console, self.rendered_with_colors, self.gradient, self.fps
+                )
             elif self.animation == "smooth_strobe":
-                self._smooth_strobe_animation(console, self.rendered_lines, self.gradient, self.fps)
+                self._smooth_strobe_animation(
+                    console, self.rendered_lines, self.gradient, self.fps
+                )
             elif self.animation == "fast_strobe":
-                self._fast_strobe_animation(console, self.rendered_lines, self.gradient, self.fps)
+                self._fast_strobe_animation(
+                    console, self.rendered_lines, self.gradient, self.fps
+                )
 
     def __rich_measure__(self, console: Console, options: ConsoleOptions) -> Measurement:
         return Measurement(self.reported_width, options.max_width)
@@ -475,13 +560,53 @@ class RichFiglet:
                 # Small sleep to prevent CPU hogging when queue is full
                 time.sleep(0.01)
 
-    def _get_renderable(self, next_frame_callable: Callable[[], Lines | Panel]) -> Lines | Panel:
+    def _get_renderable(
+        self, next_frame_callable: Callable[[], Lines | Panel]
+    ) -> Lines | Panel:
         try:
             # Get the next pre-rendered frame from the queue
             return self.frame_queue.get(block=False)
         except Empty:
             # Safety fallback (shouldn't happen), make a frame on demand
             return next_frame_callable()
+
+    def _send_animation_to_worker(
+        self, console: Console, make_next_frame: Callable[[], Lines | Panel], fps: float
+    ) -> None:
+
+        # Start the background worker thread
+        worker_thread = threading.Thread(
+            target=partial(self._frame_worker, make_next_frame), daemon=True
+        )
+        worker_thread.start()
+
+        # Ensure the queue is full before proceeding
+        while not self.frame_queue.full():
+            time.sleep(0.01)
+
+        with Live(
+            console=console,
+            refresh_per_second=fps,
+            get_renderable=partial(self._get_renderable, make_next_frame),
+        ) as live:
+
+            start_time = time.time()
+            try:
+                while self.animation_running and (
+                    not self.timer or time.time() - start_time < self.timer
+                ):
+                    time.sleep(0.1)  # Keep the main thread alive
+
+                    # The Live object runs its own loop in a separate thread to call _get_renderable.
+                    # The main thread needs to stay alive for the animation to continue.
+                    # This sleep does not control animation speed. It's just to prevent
+                    # the while loop from spinning at 100% CPU.
+
+            except KeyboardInterrupt:
+                live.stop()
+            finally:
+                self.animation_running = False
+                worker_thread.join(timeout=0.5)  # Make sure worker thread terminates
 
     def _vertical_animation(
         self,
@@ -493,7 +618,9 @@ class RichFiglet:
         self.position = 0
         self.animation_running = True
         if not self.border:
-            rendered_lines.append(Text("\nPress ctrl+c to continue", style=Style(italic=True, dim=True)))
+            rendered_lines.append(
+                Text("\nPress ctrl+c to continue", style=Style(italic=True, dim=True))
+            )
 
         self.frame_queue.put(rendered_lines)  # Initial render is the first frame
 
@@ -535,34 +662,7 @@ class RichFiglet:
                 self.position -= 1
             return rendered_lines
 
-        # Start the background worker thread
-        worker_thread = threading.Thread(target=partial(self._frame_worker, make_next_frame), daemon=True)
-        worker_thread.start()
-
-        # Ensure the queue is full before proceeding
-        while not self.frame_queue.full():
-            time.sleep(0.01)
-
-        with Live(
-            console=console,
-            refresh_per_second=fps,
-            get_renderable=partial(self._get_renderable, make_next_frame),
-        ) as live:
-
-            try:
-                while self.animation_running:
-                    time.sleep(0.1)  # Keep the main thread alive
-
-                    # The Live object runs its own loop in a separate thread to call _get_renderable.
-                    # The main thread needs to stay alive for the animation to continue.
-                    # This sleep does not control animation speed. It's just to prevent
-                    # the while loop from spinning at 100% CPU.
-
-            except KeyboardInterrupt:
-                live.stop()
-            finally:
-                self.animation_running = False
-                worker_thread.join(timeout=0.5)  # Make sure worker thread terminates
+        self._send_animation_to_worker(console, make_next_frame, fps)
 
     def _smooth_strobe_animation(
         self,
@@ -574,7 +674,9 @@ class RichFiglet:
         self.position = 0
         self.animation_running = True
         if not self.border:
-            rendered_lines.append(Text("\nPress ctrl+c to continue", style=Style(italic=True, dim=True)))
+            rendered_lines.append(
+                Text("\nPress ctrl+c to continue", style=Style(italic=True, dim=True))
+            )
 
         # Create a queue to store pre-rendered frames
         self.frame_queue.put(rendered_lines)  # Initial render is the first frame
@@ -605,34 +707,7 @@ class RichFiglet:
             self.position += 1
             return rendered_lines
 
-        # Start the background worker thread
-        worker_thread = threading.Thread(target=partial(self._frame_worker, make_next_frame), daemon=True)
-        worker_thread.start()
-
-        # Ensure the queue is full before proceeding
-        while not self.frame_queue.full():
-            time.sleep(0.01)
-
-        with Live(
-            console=console,
-            refresh_per_second=fps,
-            get_renderable=partial(self._get_renderable, make_next_frame),
-        ) as live:
-
-            try:
-                while self.animation_running:
-                    time.sleep(0.1)  # Keep the main thread alive
-
-                    # The Live object runs its own loop in a separate thread to call _get_renderable.
-                    # The main thread needs to stay alive for the animation to continue.
-                    # This sleep does not control animation speed. It's just to prevent
-                    # the while loop from spinning at 100% CPU.
-
-            except KeyboardInterrupt:
-                live.stop()
-            finally:
-                self.animation_running = False
-                worker_thread.join(timeout=0.5)  # Make sure worker thread terminates
+        self._send_animation_to_worker(console, make_next_frame, fps)
 
     def _fast_strobe_animation(
         self,
@@ -644,7 +719,9 @@ class RichFiglet:
         self.position = 0
         self.animation_running = True
         if not self.border:
-            rendered_lines.append(Text("\nPress ctrl+c to continue", style=Style(italic=True, dim=True)))
+            rendered_lines.append(
+                Text("\nPress ctrl+c to continue", style=Style(italic=True, dim=True))
+            )
 
         # Create a queue to store pre-rendered frames
         self.frame_queue.put(rendered_lines)  # Initial render is the first frame
@@ -675,34 +752,7 @@ class RichFiglet:
             self.position += 1
             return rendered_lines
 
-        # Start the background worker thread
-        worker_thread = threading.Thread(target=partial(self._frame_worker, make_next_frame), daemon=True)
-        worker_thread.start()
-
-        # Ensure the queue is full before proceeding
-        while not self.frame_queue.full():
-            time.sleep(0.01)
-
-        with Live(
-            console=console,
-            refresh_per_second=fps,
-            get_renderable=partial(self._get_renderable, make_next_frame),
-        ) as live:
-
-            try:
-                while self.animation_running:
-                    time.sleep(0.1)  # Keep the main thread alive
-
-                    # The Live object runs its own loop in a separate thread to call _get_renderable.
-                    # The main thread needs to stay alive for the animation to continue.
-                    # This sleep does not control animation speed. It's just to prevent
-                    # the while loop from spinning at 100% CPU.
-
-            except KeyboardInterrupt:
-                live.stop()
-            finally:
-                self.animation_running = False
-                worker_thread.join(timeout=0.5)  # Make sure worker thread terminates
+        self._send_animation_to_worker(console, make_next_frame, fps)
 
     ##########################################################################
 

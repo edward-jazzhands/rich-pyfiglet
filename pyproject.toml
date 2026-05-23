@@ -1,7 +1,7 @@
 [project]
 name = "rich-pyfiglet"
-version = "1.0.0"
-requires-python = ">=3.9"
+version = "2.0.0"
+requires-python = ">=3.10"
 description = "A library that wraps PyFiglet with the Rich library for rendering ASCII art in the terminal."
 readme = "README.md"
 authors = [
@@ -16,18 +16,18 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: 3 :: Only",
 ]
 
 dependencies = [
-    "click>=8.1.8",
     "pyfiglet>=1.0.3",
     "rich>=12.0.0,<16.0.0",
+    "rich-click>=1.9.7",
 ]
 
 [project.urls]
@@ -35,10 +35,10 @@ Repository = "https://github.com/edward-jazzhands/rich-pyfiglet"
 Changelog = "https://github.com/edward-jazzhands/rich-pyfiglet/blob/master/CHANGELOG.md"
 
 [project.scripts]
-rich-pyfiglet = "rich_pyfiglet.cli:main"
+rich-pyfiglet = "rich_pyfiglet.cli:cli"
 
 [build-system]
-requires = ["uv_build>=0.8.0,<0.9"]
+requires = ["uv_build>=0.9.24,<0.10.0"]
 build-backend = "uv_build"
 
 ##########################
@@ -56,7 +56,7 @@ dev = [
 ]
 
 [tool.black]
-line-length = 110
+line-length = 90
 
 [tool.mypy]
 pretty = true
@@ -67,6 +67,18 @@ disallow_untyped_calls = true
 [tool.basedpyright]
 include = ["src"]
 typeCheckingMode = "strict"
+
+# Virtual environment
+venvPath = "."
+venv = ".venv"
+
+# Specific rule overrides
+# These all take ( "none", "warning", "error", "information" )
+reportUnknownMemberType = "information"
+# reportMissingImports = "error"
+# reportMissingTypeStubs = "warning"
+# reportUnusedVariable = "warning"
+# reportUnusedImport = "none"
 
 # [tool.pytest.ini_options]
 # asyncio_mode = "auto"

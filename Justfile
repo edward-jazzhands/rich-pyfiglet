@@ -4,7 +4,11 @@ install:
 	
 # Run the small example script
 run-ex:
-	uv run example/example.py
+	uv run examples/example_small.py
+
+# Run the full demo
+run-demo:
+  uv run examples/demo.py
 
 # Run the script to generate the fonts list.
 make-list:

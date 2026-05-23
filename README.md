@@ -6,13 +6,13 @@
 
 [![badge](https://img.shields.io/pypi/v/rich-pyfiglet)](https://pypi.org/project/rich-pyfiglet/)
 [![badge](https://img.shields.io/github/v/release/edward-jazzhands/rich-pyfiglet)](https://github.com/edward-jazzhands/rich-pyfiglet/releases/latest)
-[![badge](https://img.shields.io/badge/Requires_Python->=3.9-blue&logo=python)](https://python.org)
-[![badge](https://img.shields.io/badge/Strictly_Typed-MyPy_&_Pyright-blue&logo=python)](https://mypy-lang.org/)
+[![badge](https://img.shields.io/badge/Requires_Python->=3.10-blue&logo=python)](https://python.org)
+[![badge](https://img.shields.io/badge/Type_Hinted-Yes-blue&logo=python)](https://mypy-lang.org/)
 [![badge](https://img.shields.io/badge/license-MIT-blue)](https://opensource.org/license/mit)
 
 Rich-PyFiglet is an implementation of [PyFiglet](https://github.com/pwaller/pyfiglet) for [Rich](https://github.com/Textualize/rich).
 
-It provides a RichFiglet class that is fully compatible with the Rich API and can be dropped into your Rich scripts.
+This is both a library and a CLI tool. The library provides a RichFiglet class that is fully compatible with the Rich API and can be dropped into your Rich scripts. It also includes a CLI that can be used as part of shell scripts or to quickly test out different settings.
 
 *This library is related to [Textual-Pyfiglet](https://github.com/edward-jazzhands/textual-pyfiglet).*
 
@@ -26,10 +26,11 @@ It provides a RichFiglet class that is fully compatible with the Rich API and ca
 - Pass in a list of colors for multicolored gradients and animations.
 - Manually tweak the gradient quality as well as the animation FPS in order to customize the banner the way you want it.
 - Add borders around the banner - The RichFiglet takes border settings as arguments, which allows it to properly account for the border and padding when calculating its available space (without doing this, some terminal sizes would mess up the render).
-- Included CLI mode for quick testing.
-- The fonts are type-hinted to give you auto-completion in your code editor, eliminating the need to manually check what fonts are available.
+- Included CLI mode for shell scripting and quick testing.
+- The fonts are type-hinted to give you auto-completion in your code editor.
+- Demo script included in the package, check it out using the CLI.
 
-## Try out the CLI
+## Try out the CLI without Installing
 
 If you have [uv](https://docs.astral.sh/uv/) or [pipx](https://pipx.pypa.io/stable/), you can immediately try the included CLI:
 
@@ -38,7 +39,19 @@ uvx rich-pyfiglet "Rich is awesome" --colors blue:green
 ```
 
 ```sh
-pipx rich-pyfiglet "Rich is awesome" --colors blue:green
+pipx run rich-pyfiglet "Rich is awesome" --colors blue:green
+```
+
+## Demo
+
+Try out the demo script included in the package without installing:
+
+```sh
+uvx rich-pyfiglet demo
+```
+
+```sh
+pipx run rich-pyfiglet demo
 ```
 
 ## Documentation

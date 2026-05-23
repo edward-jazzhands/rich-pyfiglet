@@ -8,7 +8,7 @@ if you are using it inside of a Rich application, you will also need:
 
 - [Rich](https://github.com/Textualize/rich) >= 12.6.0
 
-## Installation
+## Installation as a Library
 
 ```sh
 pip install rich-pyfiglet
@@ -20,19 +20,42 @@ Or using uv:
 uv add rich-pyfiglet
 ```
 
-## CLI mode
+## Installation as a CLI Tool
 
-You can instantly try out Rich-PyFiglet with the included CLI using uv:
+```sh
+uv tool install rich-pyfiglet
+```
+
+Or using pipx:
+
+```sh
+pipx install rich-pyfiglet
+```
+
+## Quick Run Without Installing
+
+You can instantly try out the included CLI using uv the quick run mode in UV or PipX:
 
 ```sh
 uvx rich-pyfiglet "Rich is awesome" --colors green3:purple -a gradient_down
 ```
 
-or using pipx:
-
 ```sh
 pipx run rich-pyfiglet "Rich is awesome" --colors blue1:magenta3 -h
 ```
+
+There is also an included demo script that you can quick run using the CLI:
+
+```sh
+uvx rich-pyfiglet demo
+```
+
+```sh
+pipx run rich-pyfiglet demo
+```
+
+Once Rich-Pyfiglet is installed on your system, you can use the rich-pyfiglet command directly.
+
 
 ## Getting Started
 
@@ -92,6 +115,16 @@ console.print(rich_fig)
 
 ## Advanced tweaking
 
+The `justify` argument can be set to `left`, `center`, or `right`. The default is `left`. When set to left, the border will only be as large as it needs to fit the text inside. When set to center or right, the border will automatically stretch to fill the terminal width, so you get a full-width box with the text centered inside:
+
+```py
+rich_fig = RichFiglet(
+    "Rich - PyFiglet",
+    font="slant",
+    colors=["#ff0000", "bright_blue", "yellow", "green3"],
+    justify="center",
+)
+
 For more fine-grained control, you can adjust the gradient quality and the animation FPS. FPS can be a float.
 
 ```py
@@ -108,11 +141,7 @@ console.print(rich_fig)
 
 ## Included border arguments
 
-The RichFiglet takes arguments for border settings. This is completely necessary in order to ensure that it renders properly inside of borders. You might wonder, why not simply take the rendered figlet and put it inside a Rich Panel object after its been rendered? Well, this is prone to some problems.
-
-The first is that the RichFiglet gets the terminal width and calculates how much space it has to render. Adding a border and padding after that throws off the calculation, and can mess up the render if your terminal just happens to be at the right size. The second issue is that the animations cannot be placed inside of a Panel object to place a border around them. It will cause the animation to stop working.
-
-The RichFiglet solves both of these problems by rendering a border itself. Pass in your desired border settings as arguments in the constructor, and the RichFiglet will properly account for the space taken up by the border and padding to ensure it always renders properly in the available space as well as add a border around any animations you choose.
+The RichFiglet takes arguments for border settings:
 
 ```py
 rich_fig = RichFiglet(
@@ -126,6 +155,28 @@ rich_fig = RichFiglet(
 console.print(rich_fig)
 ```
 
+It's important to note, this is completely necessary in order to ensure that it renders properly inside of borders. You might wonder, why not simply take the rendered figlet and put it inside a Rich Panel object after its been rendered? Like so:
+
+```py
+# Do NOT do this - this example shows what NOT to do:
+panel = Panel(   
+    RichFiglet(
+        "My Text",
+        font="rounded",
+        colors=["#ff0000", "magenta1"],
+    ),
+    padding=(1, 2),
+)
+console.print(panel)
+```
+
+Well, this is prone to some problems:
+
+The first is that the RichFiglet gets the terminal width and calculates how much space it has to render. Adding a border and padding after that throws off the calculation, and can mess up the render if your terminal just happens to be at the right size. The second issue is that the animations cannot be placed inside of a Panel object to place a border around them. It will cause the animation to stop working.
+
+The RichFiglet solves both of these problems by rendering a border itself. Pass in your desired border settings as arguments in the constructor, and the RichFiglet will properly account for the space taken up by the border and padding to ensure it always renders properly in the available space as well as add a border around any animations you choose.
+
+
 ## Full example
 
 Here is an example of a short script demonstrating almost all argument in the constructor:
@@ -138,16 +189,20 @@ console = Console()
 rich_fig = RichFiglet(
     "Your Banner Here",
     font = "modular",
-    width = 80,   # Bypass the auto-detection and set size manually
+    width = 80,   # Default = auto-detect terminal width
+    justify = "center", # Default = "left"
     colors = ["#ff0000", "magenta1", "blue3"],
     horizontal = True   # This will be ignored because animation is set
+    quality = 10,  # Default = None, which means auto-mode (recommended)
     animation = "fast_strobe",
     fps = 0.5,
+    timer = 5.0,  # Default = None
     remove_blank_lines = True,
     border = "ROUNDED",
     border_padding = (1, 2),
     border_color = "#ff0000",
     dev_mode = True,
+    dev_console = console, # default prints debug info to stderr
 ):
 console.print(rich_fig)
 console.print("The rest of your Rich script")
