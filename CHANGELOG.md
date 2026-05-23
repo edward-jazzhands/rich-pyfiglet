@@ -5,6 +5,7 @@
 ### Hot Fix
 
 - Main CLI arg was accidentally set to have a default value of None.
+- Small typo in the CLI help text from the markdown conversion.
 
 ## [2.0.0] 2026-05-23
 
@@ -13,7 +14,6 @@
 **Library additions:**
 
 - Added the `justify` argument to the RichFiglet constructor. This allows you to set the justification of the figlet. Dunno why I didn't add this before honestly.
-- Added the `width` argument to the RichFiglet constructor. If not set, the terminal width will be used.
 - Added the `timer` argument to the RichFiglet constructor. This allows you to set a timer for the animation to run for, instead of running indefinitely.
 - [dev] Added a `dev_console` argument to the RichFiglet constructor which allows you to pass in a console to print debug information to, making it possible to use the same console the RichFiglet is printed to, or make it print to stdout.
 - [dev] Added more information to the debug output in dev mode.
