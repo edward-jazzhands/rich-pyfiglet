@@ -113,7 +113,7 @@ def cli() -> None:
 
 
 @cli.command()
-@click.argument("text", type=str, default=None, required=True)
+@click.argument("text", type=str, required=True)
 @click.option("--font", "-f", type=str, default="ansi_shadow", help=font_help)
 @click.option("--width", "-w", type=int, default=None, help=width_help)
 @click.option("--justify", "-j", type=str, default="left", help=justify_help)
