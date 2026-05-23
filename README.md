@@ -35,11 +35,11 @@ This is both a library and a CLI tool. The library provides a RichFiglet class t
 If you have [uv](https://docs.astral.sh/uv/) or [pipx](https://pipx.pypa.io/stable/), you can immediately try the included CLI:
 
 ```sh
-uvx rich-pyfiglet "Rich is awesome" --colors blue:green
+uvx rich-pyfiglet 'Rich is awesome' --colors blue:green
 ```
 
 ```sh
-pipx run rich-pyfiglet "Rich is awesome" --colors blue:green
+pipx run rich-pyfiglet 'Rich is awesome' --colors blue:green
 ```
 
 ## Demo

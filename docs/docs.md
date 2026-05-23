@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- Python >= 3.9
+- Python >= 3.10
 
 if you are using it inside of a Rich application, you will also need:
 
@@ -37,11 +37,11 @@ pipx install rich-pyfiglet
 You can instantly try out the included CLI using uv the quick run mode in UV or PipX:
 
 ```sh
-uvx rich-pyfiglet "Rich is awesome" --colors green3:purple -a gradient_down
+uvx rich-pyfiglet 'Rich is awesome' --colors green3:purple -a gradient_down
 ```
 
 ```sh
-pipx run rich-pyfiglet "Rich is awesome" --colors blue1:magenta3 -h
+pipx run rich-pyfiglet 'Rich is awesome' --colors blue1:magenta3 -h
 ```
 
 There is also an included demo script that you can quick run using the CLI:
@@ -124,6 +124,7 @@ rich_fig = RichFiglet(
     colors=["#ff0000", "bright_blue", "yellow", "green3"],
     justify="center",
 )
+```
 
 For more fine-grained control, you can adjust the gradient quality and the animation FPS. FPS can be a float.
 
